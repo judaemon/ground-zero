@@ -3,12 +3,18 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-      target: prod
+      target: dev
       args:
-        DEV_MODE: "false"
+        DEV_MODE: "true"
     container_name: ground-zero
     restart: unless-stopped
     working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/node_modules
+      - /var/www/html/vendor
+    ports:
+      - "8080:8080"
     environment:
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
