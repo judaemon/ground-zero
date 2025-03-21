@@ -8,6 +8,9 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs unzip && \
     rm -rf /var/lib/apt/lists/*
 
+# For Laravel Reverb
+EXPOSE 8000
+
 # Build Stage (common for all environments)
 FROM base AS build
 ARG DEV_MODE=false
