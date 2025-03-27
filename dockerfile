@@ -4,50 +4,53 @@ USER root
 
 # Install system dependencies and Node.js in one layer
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get update && \
+    apt-get update -y && \
     apt-get install -y nodejs unzip && \
     rm -rf /var/lib/apt/lists/*
 
 # For Laravel Reverb
 EXPOSE 8000
 
-# Build Stage (common for all environments)
+# Unified build stage with environment-aware dependencies
 FROM base AS build
 ARG DEV_MODE=false
 USER www-data
 WORKDIR /var/www/html
 
-# Install Node.js and Composer dependencies first for better caching
-COPY --chown=www-data:www-data package.json package-lock.json ./
-RUN npm install --production
+# Install npm dependencies
+COPY --chown=www-data:www-data package*.json ./
+RUN npm install $( [ "$DEV_MODE" = "false" ] && echo "--production" )
 
-COPY --chown=www-data:www-data composer.json composer.lock ./
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Install composer dependencies
+COPY --chown=www-data:www-data composer*.json ./
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
+    $( [ "$DEV_MODE" = "false" ] && echo "--no-dev" )
 
-# Copy the full application code after dependencies are installed
-COPY --chown=www-data:www-data ./ /var/www/html
+# Copy application code
+COPY --chown=www-data:www-data . .
 
-# Run additional installations if in development mode
-RUN if [ "$DEV_MODE" = "true" ]; then \
-        composer install --no-interaction --optimize-autoloader; \
-    fi
-
-# Development Image (keeps Node.js and all dev dependencies)
+# Development image (retains all dependencies)
 FROM build AS dev
-USER www-data
 
-# Production Image (removes Node.js after asset build)
-FROM build AS prod
+FROM base AS prod
+USER www-data
+WORKDIR /var/www/html
+
+# Copy built artifacts from build stage
+COPY --from=build --chown=www-data:www-data /var/www/html/ .
+
+# Build production assets and cleanup
 USER root
 
 # Build frontend assets
-RUN npm run build && \
-    npm uninstall -g npm && \
-    apt-get purge -y nodejs && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN npm run build
+    #  && \
+    # npm uninstall -g npm && \
+    # apt-get purge -y nodejs && \
+    # apt-get autoremove -y && \
+    # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Set production environment variables
+# Production environment configuration
 ENV AUTORUN_ENABLED="true" \
     AUTORUN_LARAVEL_MIGRATION_ISOLATION="false" \
     AUTORUN_LARAVEL_CONFIG_CACHE="true" \

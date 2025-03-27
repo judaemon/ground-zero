@@ -22,4 +22,14 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    server: {
+        host: 'localhost',
+        strictPort: true,
+        // cors: {
+        //     origin: 'http://ground-zero.local',
+        //     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        //     allowedHeaders: ['Content-Type', 'Authorization'],
+        //     credentials: true,
+        //   },
+    },
 });
