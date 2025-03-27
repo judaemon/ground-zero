@@ -43,12 +43,11 @@ COPY --from=build --chown=www-data:www-data /var/www/html/ .
 USER root
 
 # Build frontend assets
-# RUN npm run build
-    #  && \
-    # npm uninstall -g npm && \
-    # apt-get purge -y nodejs && \
-    # apt-get autoremove -y && \
-    # rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN npm run build && \
+    npm uninstall -g npm && \
+    apt-get purge -y nodejs && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Production environment configuration
 ENV AUTORUN_ENABLED="true" \
