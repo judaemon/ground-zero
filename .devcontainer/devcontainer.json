@@ -1,0 +1,23 @@
+{
+  "name": "ground-zero-laravel",
+  "dockerComposeFile": "../docker-compose.yaml",
+  "service": "ground-zero",
+  "workspaceFolder": "/var/www/html",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "php.validate.executablePath": "/usr/local/bin/php"
+      },
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "onecentlin.laravel-blade",
+        "onecentlin.laravel5-snippets",
+        "mikestead.dotenv",
+        "PKief.material-icon-theme"
+      ]
+    }
+  },
+  "remoteUser": "www-data",
+  "postCreateCommand": "npm run build"
+}

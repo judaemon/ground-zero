@@ -26,8 +26,10 @@ COPY --chown=www-data:www-data ./ /var/www/html
 
 # Run additional installations if in development mode
 RUN if [ "$DEV_MODE" = "true" ]; then \
-        composer install --no-interaction --optimize-autoloader; \
-    fi
+    composer install --no-dev --optimize-autoloader; \
+else \
+    composer install --no-interaction --prefer-dist; \
+fi
 
 # Development Image (keeps Node.js and all dev dependencies)
 FROM build AS dev
@@ -42,7 +44,8 @@ RUN npm run build && \
     npm uninstall -g npm && \
     apt-get purge -y nodejs && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    rm -rf node_modules
 
 # Set production environment variables
 ENV AUTORUN_ENABLED="true" \
