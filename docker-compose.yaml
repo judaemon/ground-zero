@@ -10,7 +10,6 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     ports:
-      # - "8080"
       - "8080:8080"
     environment:
       - APP_ENV=${APP_ENV}
@@ -18,9 +17,9 @@ services:
       - APP_KEY=${APP_KEY}
       - DB_CONNECTION=${DB_CONNECTION}
       - SESSION_DRIVER=${SESSION_DRIVER}
-#     networks:
-#       - npm_network
+    networks:
+      - npm_network
 
-# networks:
-#   npm_network:
-#     external: true
+networks:
+  npm_network:
+    external: true

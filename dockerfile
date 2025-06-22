@@ -5,7 +5,7 @@ USER root
 # Install system dependencies and Node.js in one layer
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get update && \
-    apt-get install -y nodejs unzip && \
+    apt-get install -y nodejs unzip git && \
     rm -rf /var/lib/apt/lists/*
 
 # Build Stage (common for all environments)
