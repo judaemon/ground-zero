@@ -1,16 +1,21 @@
+version: '3.8'
+
 services:
   ground-zero:
     build:
       context: .
       dockerfile: Dockerfile
-      target: prod
+      target: dev
       args:
         DEV_MODE: "true"
     container_name: ground-zero
     restart: unless-stopped
     working_dir: /var/www/html
     ports:
-      - "8080:8080"
+      - "8080:80"
+      - "5173:5173" # ✅ Vite port 
+    volumes:
+      - .:/var/www/html:cached
     environment:
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
