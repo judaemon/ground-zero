@@ -16,8 +16,11 @@
         "mikestead.dotenv",
         "PKief.material-icon-theme"
       ]
+    },
+    "features": {
+      "ghcr.io/devcontainers/features/git:1": {}
     }
   },
-  "remoteUser": "www-data",
-  "postCreateCommand": "npm run build"
+  "remoteUser": "root",
+  "postCreateCommand": "chown -R www-data:www-data ."
 }
