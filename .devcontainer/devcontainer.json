@@ -22,5 +22,5 @@
     }
   },
   "remoteUser": "root",
-  "postCreateCommand": "chown -R www-data:www-data ."
+  "postCreateCommand": "git config --global --add safe.directory /var/www/html"
 }
