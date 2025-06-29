@@ -7,11 +7,11 @@ services:
     container_name: ground-zero
     restart: unless-stopped
     working_dir: /var/www/html
-    ports:
-      - "8080:80"
-      - "5173:5173"
-    volumes:
-      - .:/var/www/html:cached # Only used in local
+    # ports:
+    #   - "8080:80" # local port
+      # - "5173:5173" # local vite
+    # volumes:
+      # - .:/var/www/html:cached # local devcontainer
     environment:
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
@@ -19,9 +19,10 @@ services:
       - DB_CONNECTION=${DB_CONNECTION}
       - SESSION_DRIVER=${SESSION_DRIVER}
 
-    networks:
-      - npm_network
+# local network
+#     networks:
+#       - npm_network
 
-networks:
-  npm_network:
-    external: true
+# networks:
+#   npm_network:
+#     external: true
