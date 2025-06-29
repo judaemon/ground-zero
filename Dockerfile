@@ -8,50 +8,38 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs unzip git && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /var/www/html
 
 # Build Stage
 FROM base AS build
-ARG DEV_MODE=false
 USER www-data
 
-# Copy package files first (better layer caching)
+# Copy package files first
 COPY --chown=www-data:www-data package*.json ./
-RUN npm install --production
+RUN npm install
 
 COPY --chown=www-data:www-data composer.* ./
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist
 
-# Copy full source code
-COPY --chown=www-data:www-data ./ /var/www/html
+COPY --chown=www-data:www-data ./ ./
 
-# Final composer install depending on mode
-RUN if [ "$DEV_MODE" = "true" ]; then \
-    composer install --no-interaction --prefer-dist; \
-else \
-    composer install --no-dev --optimize-autoloader; \
-fi
-
-# Dev Stage
-FROM build AS dev
+FROM build AS local
 USER root
 
-# ✅ Make www-data usable by VS Code and login shells
 RUN usermod -s /bin/bash -d /home/www-data www-data && \
     mkdir -p /home/www-data && \
     chown -R www-data:www-data /home/www-data
 
-# ✅ Install git just in case
+# Ensure git is present in case devs need it inside container
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 USER www-data
 
-# Prod Stage
+# Production Stage
 FROM build AS prod
 USER root
 
-# Build frontend and remove dev dependencies
+# Build frontend and cleanup
 RUN npm run build && \
     apt-get purge -y nodejs && \
     apt-get autoremove -y && \

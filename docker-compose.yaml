@@ -1,27 +1,24 @@
-version: '3.8'
-
 services:
   ground-zero:
     build:
       context: .
       dockerfile: Dockerfile
-      target: dev
-      args:
-        DEV_MODE: "true"
+      target: ${APP_ENV}
     container_name: ground-zero
     restart: unless-stopped
     working_dir: /var/www/html
     ports:
       - "8080:80"
-      - "5173:5173" # ✅ Vite port 
+      - "5173:5173"
     volumes:
-      - .:/var/www/html:cached
+      - .:/var/www/html:cached # Only used in local
     environment:
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
       - APP_KEY=${APP_KEY}
       - DB_CONNECTION=${DB_CONNECTION}
       - SESSION_DRIVER=${SESSION_DRIVER}
+
     networks:
       - npm_network
 
