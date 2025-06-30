@@ -1,34 +1,32 @@
 services:
-  laravel:
+  ground-zero:
     build:
       context: .
-      dockerfile: dockerfile
-      target: prod
-      args:
-        DEV_MODE: "true"
+      dockerfile: Dockerfile
+      target: ${APP_ENV}
     container_name: ground-zero
     restart: unless-stopped
     working_dir: /var/www/html
-    volumes:
-      - ground_zero_data:/var/www/html/storage
+    # ports:
+    #   - "8080:80" # local port
+      # - "5173:5173" # local vite
+    # volumes:
+      # - .:/var/www/html:cached # local devcontainer
     environment:
+      - APP_NAME=${APP_NAME}
       - APP_ENV=${APP_ENV}
       - APP_DEBUG=${APP_DEBUG}
+      - APP_URL=${APP_URL}
       - APP_KEY=${APP_KEY}
       - DB_CONNECTION=${DB_CONNECTION}
       - LOG_CHANNEL=${LOG_CHANNEL}
       - BROADCAST_CONNECTION=${BROADCAST_CONNECTION}
       - SESSION_DRIVER=${SESSION_DRIVER}
-      - REVERB_APP_ID=${REVERB_APP_ID}
-      - REVERB_APP_KEY=${REVERB_APP_KEY}
-      - REVERB_APP_SECRET=${REVERB_APP_SECRET}
-      - REVERB_PORT=${REVERB_PORT}
-      - REVERB_SCHEME=${REVERB_SCHEME}
-      - REVERB_HOST=${REVERB_HOST}
-      - VITE_REVERB_APP_KEY=${VITE_REVERB_APP_KEY}
-      - VITE_REVERB_HOST=${VITE_REVERB_HOST}
-      - VITE_REVERB_PORT=${VITE_REVERB_PORT}
-      - VITE_REVERB_SCHEME=${VITE_REVERB_SCHEME}
 
-volumes:
-  ground_zero_data:
+# local network
+#     networks:
+#       - npm_network
+
+# networks:
+#   npm_network:
+#     external: true

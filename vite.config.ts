@@ -23,13 +23,13 @@ export default defineConfig({
         },
     },
     server: {
-        host: 'localhost',
+        host: '0.0.0.0',
+        port: 5173,
         strictPort: true,
-        // cors: {
-        //     origin: 'http://ground-zero.local',
-        //     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        //     allowedHeaders: ['Content-Type', 'Authorization'],
-        //     credentials: true,
-        //   },
-    },
+        hmr: {
+            host: process.env.VITE_HMR_HOST || 'localhost',
+            protocol: 'ws',
+            port: 5173,
+        },
+    }
 });
