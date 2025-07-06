@@ -1,0 +1,43 @@
+{
+  "name": "Laravel PHP Development",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "laravel",
+  "workspaceFolder": "/var/www/html",
+  "remoteUser": "www-data",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "php.executablePath": "/usr/local/bin/php",
+        "intelephense.environment.phpVersion": "8.3.0",
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+        },
+        "php.debug.executablePath": "/usr/local/bin/php",
+        "php.debug.port": 9003,
+        "php.debug.ideKey": "PHPSTORM"
+      }
+    }
+  },
+  // "postCreateCommand": "composer install && npm install",
+  "forwardPorts": [80, 9003],
+  "portsAttributes": {
+    "80": {
+      "label": "Web",
+      "onAutoForward": "openPreview"
+    },
+    "9003": {
+      "label": "Xdebug",
+      "onAutoForward": "silent"
+    }
+  }
+}

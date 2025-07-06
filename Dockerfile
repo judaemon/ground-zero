@@ -2,7 +2,8 @@
 ############################################
 # Base Image
 ############################################
-FROM serversideup/php:8.3-fpm-nginx AS base
+ARG PHP_VERSION=8.3
+FROM serversideup/php:${PHP_VERSION}-fpm-nginx AS base
 
 
 ############################################
@@ -17,6 +18,22 @@ USER root
 ARG USER_ID
 ARG GROUP_ID
 
+# Install dev tools
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && install-php-extensions gd xdebug \
+    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.start_with_request=trigger" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.trigger_value=PHPSTORM" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    # Set a proper shell for www-data
+    && usermod -s /bin/bash www-data
+
 # Use the build arguments to change the UID 
 # and GID of www-data while also changing 
 # the file permissions for NGINX
@@ -25,8 +42,12 @@ RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
     # Update the file permissions for our NGINX service to match the new UID/GID
     docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
 
+# Expose port 9003 for Xdebug
+EXPOSE 9003
+
 # Drop back to our unprivileged user
 USER www-data
+
 
 ############################################
 # Production Image
