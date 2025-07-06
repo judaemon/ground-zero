@@ -14,9 +14,6 @@ services:
       - .:/var/www/html
     ports:
       - 80:8080
-      - 9003:9003
-    environment:
-      - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003 idekey=PHPSTORM
     networks:
       - npm_network
 

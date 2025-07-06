@@ -3,11 +3,7 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "laravel",
   "workspaceFolder": "/var/www/html",
-  "remoteUser": "www-data",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/node:1": {}
-  },
+  "remoteUser": "root",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -29,15 +25,15 @@
     }
   },
   // "postCreateCommand": "composer install && npm install",
-  "forwardPorts": [80, 9003],
+  "forwardPorts": [80, 5173],
   "portsAttributes": {
     "80": {
       "label": "Web",
       "onAutoForward": "openPreview"
     },
-    "9003": {
-      "label": "Xdebug",
-      "onAutoForward": "silent"
+    "5173": {
+      "label": "Vite",
+      "onAutoForward": "openPreview"
     }
   }
 }
