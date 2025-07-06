@@ -24,15 +24,40 @@ RUN apt-get update && apt-get install -y \
     curl \
     zip \
     unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && install-php-extensions gd xdebug \
-    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.start_with_request=trigger" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.trigger_value=PHPSTORM" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    # Set a proper shell for www-data
-    && usermod -s /bin/bash www-data
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy dependency files first for layer caching
+COPY --chown=www-data:www-data package.json package-lock.json* ./
+COPY --chown=www-data:www-data composer.json composer.lock* ./
+
+# Switch to www-data user for dependency installation
+USER www-data
+
+# Install npm and Composer dependencies
+RUN npm install
+RUN composer install --no-interaction --prefer-dist
+
+# Copy the rest of the application files
+COPY --chown=www-data:www-data . .
+
+# Run Laravel setup and frontend build
+RUN php artisan key:generate --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    npm run build
+
+# Switch back to root for permission adjustments
+USER root
 
 # Use the build arguments to change the UID 
 # and GID of www-data while also changing 
@@ -41,9 +66,6 @@ RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
     \
     # Update the file permissions for our NGINX service to match the new UID/GID
     docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
-
-# Expose port 9003 for Xdebug
-EXPOSE 9003
 
 # Drop back to our unprivileged user
 USER www-data
@@ -57,5 +79,26 @@ USER www-data
 # calling any of that permission stuff
 FROM base AS production
 
-# Copy our app files as www-data (33:33)
-COPY --chown=www-data:www-data . /var/www/html
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy dependency files first for layer caching
+COPY --chown=www-data:www-data package.json package-lock.json* ./
+COPY --chown=www-data:www-data composer.json composer.lock* ./
+
+# Install npm and Composer dependencies (production-optimized)
+RUN npm install --production && npm cache clean --force
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+# Copy the rest of the application files
+COPY --chown=www-data:www-data . .
+
+# Run Laravel setup and frontend build for production
+RUN php artisan key:generate --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    npm run build
+
+# Ensure storage and cache directories are writable
+RUN chmod -R 775 storage bootstrap/cache
