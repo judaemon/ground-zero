@@ -35,6 +35,17 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /var/www/html
 
+# Use the build arguments to change the UID 
+# and GID of www-data while also changing 
+# the file permissions for NGINX
+RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
+    \
+    # Update the file permissions for our NGINX service to match the new UID/GID
+    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+
+# Drop back to our unprivileged user
+USER www-data
+
 # Copy dependency files first for layer caching
 COPY --chown=www-data:www-data package.json package-lock.json* ./
 COPY --chown=www-data:www-data composer.json composer.lock* ./
@@ -55,20 +66,6 @@ RUN php artisan key:generate --force && \
     php artisan route:cache && \
     php artisan view:cache && \
     npm run build
-
-# Switch back to root for permission adjustments
-USER root
-
-# Use the build arguments to change the UID 
-# and GID of www-data while also changing 
-# the file permissions for NGINX
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    \
-    # Update the file permissions for our NGINX service to match the new UID/GID
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
-
-# Drop back to our unprivileged user
-USER www-data
 
 
 ############################################
