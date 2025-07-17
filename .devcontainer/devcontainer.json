@@ -25,6 +25,9 @@
     }
   },
   // "postCreateCommand": "composer install && npm install",
+  // ##################################################
+  // # COMMENT OUT THIS CODE WHEN USING REVERSE PROXY #
+  // ##################################################
   "forwardPorts": [80, 5173],
   "portsAttributes": {
     "80": {

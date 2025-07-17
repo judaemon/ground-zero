@@ -3,7 +3,38 @@ services:
     build:
       context: .
       target: production
-    ports:
-      - 80:8080
+      args:
+        PHP_VERSION: 8.3
+    container_name: laravel
+    # ports:
+    #   - 80:8080
+    environment:
+      # Add production-specific environment variables
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - APP_URL=${APP_URL}
     volumes:
-      - .:/var/www/html
+      # Only mount necessary directories to reduce overhead
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
