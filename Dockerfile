@@ -5,6 +5,15 @@
 ARG PHP_VERSION=8.3
 FROM serversideup/php:${PHP_VERSION}-fpm-nginx AS base
 
+# Switch to root to install Node.js
+USER root
+
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
 
 ############################################
 # Development Image
@@ -26,12 +35,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js and npm
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set working directory
 WORKDIR /var/www/html
 
@@ -47,7 +50,7 @@ RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
 USER www-data
 
 # Copy dependency files first for layer caching
-COPY --chown=www-data:www-data package.json package-lock.json* ./
+COPY --chown=www-data:www-data package.json package-lock.json* ./ 
 COPY --chown=www-data:www-data composer.json composer.lock* ./
 
 # Switch to www-data user for dependency installation
@@ -83,9 +86,12 @@ WORKDIR /var/www/html
 COPY --chown=www-data:www-data package.json package-lock.json* ./
 COPY --chown=www-data:www-data composer.json composer.lock* ./
 
+# Drop to www-data for safety
+USER www-data
+
 # Install npm and Composer dependencies (production-optimized)
 RUN npm install --production && npm cache clean --force
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+RUN composer install --no-interaction --prefer-dist
 
 # Copy the rest of the application files
 COPY --chown=www-data:www-data . .
@@ -98,4 +104,7 @@ RUN php artisan key:generate --force && \
     npm run build
 
 # Ensure storage and cache directories are writable
+USER root
 RUN chmod -R 775 storage bootstrap/cache
+
+USER www-data

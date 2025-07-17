@@ -31,5 +31,10 @@ export default defineConfig({
             protocol: 'ws',
             port: 5173,
         },
+        // FOR REVERSE PROXY SETUP
+        cors: {
+            origin: ['http://grd.local', 'http://localhost'],
+            credentials: true
+        }
     }
 });
