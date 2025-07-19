@@ -33,7 +33,7 @@ export default defineConfig({
         },
         // FOR REVERSE PROXY SETUP
         cors: {
-            origin: ['http://grd.local', 'http://localhost'],
+            origin: ['http://ground-zero.local', 'http://localhost'],
             credentials: true
         }
     }
