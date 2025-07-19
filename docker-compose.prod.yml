@@ -32,9 +32,9 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-    networks:
-      - app-network
+#     networks:
+#       - app-network
 
-networks:
-  app-network:
-    driver: bridge
+# networks:
+#   app-network:
+#     driver: bridge
