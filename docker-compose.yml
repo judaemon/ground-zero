@@ -13,6 +13,7 @@ services:
     volumes:
       - .:/var/www/html:cached
       - vendor_data:/var/www/html/vendor
+      - database_data:/var/www/html/database
       - node_modules_data:/var/www/html/node_modules
     # ports:
     #   - 80:8080
@@ -21,6 +22,7 @@ services:
 
 volumes:
   vendor_data:
+  database_data:
   node_modules_data:
 
 networks:
