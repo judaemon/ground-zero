@@ -57,9 +57,6 @@ COPY --chown=www-data:www-data . .
 
 # Run Laravel setup and frontend build
 RUN php artisan migrate --force && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
     npm run build
 
 # Ensure storage and cache directories are writable
