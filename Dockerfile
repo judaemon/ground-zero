@@ -55,9 +55,8 @@ RUN composer install --no-interaction --prefer-dist && \
 # Copy the rest of the application files
 COPY --chown=www-data:www-data . .
 
-# Run Laravel setup and frontend build
-RUN php artisan migrate --force && \
-    npm run build
+# Build the frontend assets
+RUN npm run build
 
 # Ensure storage and cache directories are writable
 # USER root
