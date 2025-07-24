@@ -52,17 +52,10 @@ COPY --chown=www-data:www-data composer.json composer.lock* ./
 RUN composer install --no-interaction --prefer-dist && \
     npm install
 
+RUN echo "Running npm run dev..."
+
 # Copy the rest of the application files
 COPY --chown=www-data:www-data . .
-
-# Build the frontend assets
-RUN npm run build
-
-# Ensure storage and cache directories are writable
-# USER root
-# RUN chmod -R 775 storage bootstrap/cache
-
-USER www-data
 
 
 ############################################
