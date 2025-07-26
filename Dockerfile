@@ -5,7 +5,7 @@
 ARG PHP_VERSION=8.3
 FROM serversideup/php:${PHP_VERSION}-fpm-nginx AS base
 
-# Switch to root to install Node.js
+# Switch to root to install dependencies
 USER root
 
 # Install Node.js, npm, and dev tools
@@ -18,41 +18,40 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+# Set working directory
+WORKDIR /var/www/html
+
 ############################################
 # Development Image
 ############################################
 FROM base AS development
 
-# Switch to root so we can do root things
+# Switch to root for system-level changes
 USER root
 
-# Save the build arguments as a variable
+# Save build arguments as variables
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
-# Set working directory
-WORKDIR /var/www/html
+# Modify www-data user and group to match host UID/GID
+RUN usermod -u ${USER_ID} www-data && \
+    groupmod -g ${GROUP_ID} www-data && \
+    chown -R www-data:www-data /var/www && \
+    usermod -s /bin/bash www-data
 
-# Use the build arguments to change the UID 
-# and GID of www-data while also changing 
-# the file permissions for NGINX
-RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
-    \
-    # Update the file permissions for our NGINX service to match the new UID/GID
-    docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID --service nginx
+# Set file permissions for NGINX and Laravel directories
+RUN docker-php-serversideup-set-id www-data ${USER_ID}:${GROUP_ID} && \
+    docker-php-serversideup-set-file-permissions --owner ${USER_ID}:${GROUP_ID} --service nginx && \
+    # Ensure Laravel storage and cache directories are writable
+    mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
-# Switch to www-data
+# Switch to www-data user
 USER www-data
 
-# Copy dependency files first for layer caching
-COPY --chown=www-data:www-data package.json package-lock.json* ./ 
-COPY --chown=www-data:www-data composer.json composer.lock* ./
-
-# Install dependencies
-RUN composer install --no-interaction --prefer-dist && \
-    npm install
-
-RUN echo "Running npm run dev..."
+# Copy dependency files for layer caching
+COPY --chown=www-data:www-data composer.json composer.lock* package.json package-lock.json* ./
 
 # Copy the rest of the application files
 COPY --chown=www-data:www-data . .
@@ -61,9 +60,6 @@ COPY --chown=www-data:www-data . .
 ############################################
 # Production Image
 ############################################
-
-# Since we're calling "base", production isn't
-# calling any of that permission stuff
 FROM base AS production
 
 # Copy dependency files for layer caching
@@ -71,7 +67,8 @@ COPY --chown=www-data:www-data composer.json composer.lock* package.json package
 
 # Install production dependencies
 RUN composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader && \
-    npm install --production && npm cache clean --force
+    npm install --production && \
+    npm cache clean --force
 
 # Copy the rest of the application
 COPY --chown=www-data:www-data . .
@@ -85,6 +82,8 @@ RUN php artisan key:generate --force && \
 
 # Ensure storage and cache directories are writable
 USER root
-RUN chmod -R 775 storage bootstrap/cache
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
 USER www-data

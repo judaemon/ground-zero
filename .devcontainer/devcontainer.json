@@ -3,7 +3,7 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "laravel",
   "workspaceFolder": "/var/www/html",
-  "remoteUser": "root",
+  "remoteUser": "www-data",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,15 +14,15 @@
       ],
       "settings": {
         "php.executablePath": "/usr/local/bin/php",
+        "php.debug.executablePath": "/usr/local/bin/php",
+        "php.debug.port": 9003,
+        "php.debug.ideKey": "PHPSTORM",
         "intelephense.environment.phpVersion": "8.3.0",
         "[php]": {
           "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
-        },
-        "php.debug.executablePath": "/usr/local/bin/php",
-        "php.debug.port": 9003,
-        "php.debug.ideKey": "PHPSTORM"
+        }
       }
     }
   },
-  "postCreateCommand": "composer install && npm install && npm run build"
+  "postCreateCommand": "composer install && npm install && npm run build && php artisan key:generate --force && php artisan migrate --force",
 }
