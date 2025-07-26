@@ -31,7 +31,9 @@ export default defineConfig({
             protocol: 'ws',
             port: 5173,
         },
-        // FOR REVERSE PROXY SETUP
+        // Allow CORS from specific dev origins.
+        // Add your own local domain (or port) here if you're using a different setup.
+        // Useful when running Vite behind a reverse proxy or using custom local domains.
         cors: {
             origin: ['http://ground-zero.local', 'http://localhost'],
             credentials: true
