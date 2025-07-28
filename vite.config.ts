@@ -35,7 +35,7 @@ export default defineConfig({
         // Add your own local domain (or port) here if you're using a different setup.
         // Useful when running Vite behind a reverse proxy or using custom local domains.
         cors: {
-            origin: ['http://ground-zero.local', 'http://localhost'],
+            origin: ['http://ground-zero.local', 'http://localhost:8080'],
             credentials: true
         }
     }

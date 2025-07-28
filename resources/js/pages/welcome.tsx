@@ -40,7 +40,7 @@ export default function Welcome() {
                 </header>
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <h1 className="m-auto mb-1 font-medium text-center text-white">Hello world!</h1>
+                        <h1 className="m-auto mb-1 font-medium text-center text-black dark:text-white">Hello world!</h1>
                     </main>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>

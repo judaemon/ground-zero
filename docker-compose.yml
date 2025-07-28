@@ -12,8 +12,8 @@ services:
         PHP_VERSION: 8.3
     volumes:
       - .:/var/www/html:cached
-    # ports:
-    #   - 80:8080
+    ports:
+      - 8080:8080
 #     networks:
 #       - npm_network
 
