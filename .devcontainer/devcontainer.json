@@ -24,5 +24,5 @@
       }
     }
   },
-  "postCreateCommand": "composer install && npm install && npm run build && php artisan key:generate --force && php artisan migrate --force",
+  "postCreateCommand": "bash .devcontainer/setup-dev-environment.sh"
 }

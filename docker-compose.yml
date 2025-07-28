@@ -14,9 +14,9 @@ services:
       - .:/var/www/html:cached
     # ports:
     #   - 80:8080
-    networks:
-      - npm_network
+#     networks:
+#       - npm_network
 
-networks:
-  npm_network:
-    external: true
+# networks:
+#   npm_network:
+#     external: true
