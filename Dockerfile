@@ -66,7 +66,7 @@ FROM base AS production
 COPY --chown=www-data:www-data composer.json composer.lock* package.json package-lock.json* ./
 
 # Install production dependencies
-RUN composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader && \
+RUN composer install --no-interaction --optimize-autoloader && \
     npm install --production && \
     npm cache clean --force
 
@@ -74,8 +74,7 @@ RUN composer install --no-interaction --prefer-dist --no-dev --optimize-autoload
 COPY --chown=www-data:www-data . .
 
 # Run Laravel setup and frontend build
-RUN php artisan key:generate --force && \
-    php artisan config:cache && \
+RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
     npm run build
