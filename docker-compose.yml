@@ -1,6 +1,6 @@
 services:
   laravel:
-    container_name: ground-zero
+    container_name: ground-zero-local
     restart: unless-stopped
     working_dir: /var/www/html
     build:
