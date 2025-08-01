@@ -14,9 +14,9 @@ services:
       - .:/var/www/html:cached
     ports:
       - 8080:8080
-#     networks:
-#       - npm_network
+    networks:
+      - nginx-proxy-manager-network
 
-# networks:
-#   npm_network:
-#     external: true
+networks:
+  nginx-proxy-manager-network:
+    external: true
