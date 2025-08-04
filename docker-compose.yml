@@ -1,21 +1,54 @@
+x-base-service: &base-service
+  restart: unless-stopped
+  build:
+    context: .
+    target: development
+    args:
+      USER_ID: ${UID:-1000}
+      GROUP_ID: ${GID:-1000}
+      PHP_VERSION: 8.3
+  volumes:
+    - .:/var/www/html:cached
+  networks:
+    - nginx-proxy-manager-network
+
 services:
   laravel:
+    <<: *base-service
     container_name: ground-zero-local
-    restart: unless-stopped
     working_dir: /var/www/html
-    build:
-      context: .
-      target: development
-      args:
-        USER_ID: ${UID:-1000}
-        GROUP_ID: ${GID:-1000}
-        PHP_VERSION: 8.3
-    volumes:
-      - .:/var/www/html:cached
     ports:
       - 8080:8080
-    networks:
-      - nginx-proxy-manager-network
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/www/html/vendor/autoload.php"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  task:
+    <<: *base-service
+    container_name: ground-zero-task
+    command: ["php", "/var/www/html/artisan", "schedule:work"]
+    stop_signal: SIGTERM
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck-schedule"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  queue:
+    <<: *base-service
+    container_name: ground-zero-queue
+    command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+    stop_signal: SIGTERM
+    healthcheck:
+      test: ["CMD", "healthcheck-queue"]
+      start_period: 10s
+    depends_on:
+      laravel:
+        condition: service_healthy
 
 networks:
   nginx-proxy-manager-network:

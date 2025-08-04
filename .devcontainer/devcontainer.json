@@ -10,7 +10,12 @@
         "bmewburn.vscode-intelephense-client",
         "xdebug.php-debug",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "streetsidesoftware.code-spell-checker",
+        "icrawl.discord-vscode",
+        "ms-azuretools.vscode-containers",
+        "eamodio.gitlens",
+        "laravel.vscode-laravel"
       ],
       "settings": {
         "php.executablePath": "/usr/local/bin/php",
